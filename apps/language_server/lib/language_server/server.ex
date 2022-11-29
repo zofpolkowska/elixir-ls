@@ -62,7 +62,8 @@ defmodule ElixirLS.LanguageServer.Server do
     awaiting_contracts: [],
     supports_dynamic: false,
     mix_project?: false,
-    no_mixfile_warned?: false
+    no_mixfile_warned?: false,
+    gradient_diagnostics: []
   ]
 
   defmodule InvalidParamError do
@@ -990,7 +991,9 @@ defmodule ElixirLS.LanguageServer.Server do
   end
 
   defp handle_build_result(status, diagnostics, state = %__MODULE__{}) do
-    old_diagnostics = state.build_diagnostics ++ state.dialyzer_diagnostics
+    old_diagnostics =
+      state.build_diagnostics ++ state.dialyzer_diagnostics ++ state.gradient_diagnostics
+
     state = put_in(state.build_diagnostics, diagnostics)
 
     state =
@@ -1005,8 +1008,21 @@ defmodule ElixirLS.LanguageServer.Server do
           dialyze(state)
       end
 
+    g_diagnostics = [
+      %Mix.Task.Compiler.Diagnostic{
+        compiler_name: "ElixirLS Gradient",
+        file: "apps/language_server/lib/gradient.ex",
+        position: 0,
+        message: "message",
+        severity: :warning,
+        details: "details"
+      }
+    ]
+
+    state = put_in(state.gradient_diagnostics, g_diagnostics)
+
     publish_diagnostics(
-      state.build_diagnostics ++ state.dialyzer_diagnostics,
+      state.build_diagnostics ++ state.dialyzer_diagnostics ++ state.gradient_diagnostics,
       old_diagnostics,
       state.source_files
     )
