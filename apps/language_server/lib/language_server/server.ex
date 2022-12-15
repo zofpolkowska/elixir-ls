@@ -17,7 +17,18 @@ defmodule ElixirLS.LanguageServer.Server do
 
   use GenServer
   require Logger
-  alias ElixirLS.LanguageServer.{SourceFile, Build, Protocol, JsonRpc, Dialyzer, Diagnostics}
+  require IEx
+  alias Inspect.Stream
+
+  alias ElixirLS.LanguageServer.{
+    SourceFile,
+    Build,
+    Protocol,
+    JsonRpc,
+    Dialyzer,
+    Diagnostics,
+    Gradient
+  }
 
   alias ElixirLS.LanguageServer.Providers.{
     Completion,
@@ -1008,16 +1019,7 @@ defmodule ElixirLS.LanguageServer.Server do
           dialyze(state)
       end
 
-    g_diagnostics = [
-      %Mix.Task.Compiler.Diagnostic{
-        compiler_name: "ElixirLS Gradient",
-        file: "apps/language_server/lib/gradient.ex",
-        position: 0,
-        message: "message",
-        severity: :warning,
-        details: "details"
-      }
-    ]
+    g_diagnostics = Gradient.typecheck(state.source_files)
 
     state = put_in(state.gradient_diagnostics, g_diagnostics)
 

@@ -33,7 +33,8 @@ defmodule ElixirLS.LanguageServer.Mixfile do
       {:jason_vendored, github: "elixir-lsp/jason", branch: "vendored"},
       {:stream_data, "~> 0.5", only: :test},
       {:path_glob_vendored, github: "elixir-lsp/path_glob", branch: "vendored"},
-      {:patch, "~> 0.12.0", only: :test}
+      {:patch, "~> 0.12.0", only: :test},
+      {:gradient, github: "esl/gradient", branch: "elixirls-return-opts"}
     ]
   end
 
